@@ -1,0 +1,16 @@
+{
+  "name": "makana-mcp-server",
+  "version": "1.0.0",
+  "description": "Public remote MCP server for the Makana (Salesforce headless) tools, with an OAuth 2.1 bridge to Salesforce / Experience Cloud.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
