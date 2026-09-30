@@ -45,10 +45,11 @@ const SF_SCOPE = process.env.SF_SCOPE || 'mcp_api refresh_token';
 const DEBUG = process.env.DEBUG === '1';
 const PORT = process.env.PORT || 3000;
 
-if (!SF_MCP_URL || !SF_CLIENT_ID || !SF_CLIENT_SECRET) {
-  console.error('FATAL: missing SF_MCP_URL / SF_MCP_CLIENT_ID / SF_MCP_CLIENT_SECRET');
+if (!SF_MCP_URL || !SF_CLIENT_ID) {
+  console.error('FATAL: missing SF_MCP_URL / SF_MCP_CLIENT_ID');
   process.exit(1);
 }
+// SF_MCP_CLIENT_SECRET is optional: omit it for a public PKCE client.
 
 function log(...a) { if (DEBUG) console.error('[makana-mcp]', ...a); }
 function b64url(buf) { return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
@@ -225,7 +226,9 @@ app.post('/token', async (req, res) => {
 
 // =====================  Salesforce token helper  ============================
 async function sfToken(params) {
-  const body = new URLSearchParams({ client_id: SF_CLIENT_ID, client_secret: SF_CLIENT_SECRET, ...params });
+  const fields = { client_id: SF_CLIENT_ID, ...params };
+  if (SF_CLIENT_SECRET) fields.client_secret = SF_CLIENT_SECRET; // confidential client; omit for public PKCE
+  const body = new URLSearchParams(fields);
   const r = await fetch(SF_TOKEN_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
   const text = await r.text();
   if (!r.ok) throw new Error(`token endpoint ${r.status}: ${text.slice(0, 300)}`);
